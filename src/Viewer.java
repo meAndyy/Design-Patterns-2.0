@@ -11,17 +11,19 @@ import javax.swing.tree.*;
 
 
 public class Viewer extends JFrame
-implements TreeSelectionListener {
-    Publisher prez, sap, web, pay;
+implements TreeSelectionListener, ActionListener {
+    Publisher prez, sony, ms, nint;
     Publisher analysis, coding;
     
 
     JScrollPane sp;
-    JPanel treePanel, iconPanel;
+    JPanel treePanel, iconPanel, textPanel;
     JTree tree;
     DefaultMutableTreeNode troot;
-    JLabel cost;
+    JLabel pic;
     JMenu mnuFile;
+    cmdMenu mnuDisplay, mnuCreate;
+    JTextField text;
 
     public Viewer() {
         super("Publisher tree");
@@ -32,20 +34,35 @@ implements TreeSelectionListener {
     private void setGUI() {
         treePanel = new JPanel();
         iconPanel = new JPanel();
+        textPanel = new JPanel();
         getContentPane().setLayout(new GridLayout(2,2));
         getContentPane().add(treePanel);
         getContentPane().add(iconPanel);
+        getContentPane().add(textPanel);
         
         treePanel.setLayout(new BorderLayout());
         
         JMenuBar mbar = new JMenuBar();
         setJMenuBar(mbar);
-        mnuFile = new JMenu("File", true);
+        mnuFile = new JMenu("Menu", true);
         mbar.add(mnuFile);
+        
+        mnuDisplay = new cmdMenu("Display", this);
+        mnuFile.add(mnuDisplay);
+        
+        mnuCreate = new cmdMenu("Create", this);
+        mnuFile.add(mnuCreate);
+        
+        mnuDisplay.setCommand(new DisplayCommand(this,textPanel));
+        mnuDisplay.addActionListener(this);
+        
+        mnuCreate.setCommand(new CreateCommand(this,textPanel));
+        mnuCreate.addActionListener(this);
 
         sp = new JScrollPane();
         treePanel.add("Center", sp);
-        iconPanel.add(cost = new JLabel("          "));
+        iconPanel.add(pic = new JLabel("          "));
+      
 
         treePanel.setBorder(new BevelBorder(BevelBorder.RAISED));
         troot = new DefaultMutableTreeNode(prez.getName());
@@ -56,7 +73,7 @@ implements TreeSelectionListener {
 
         sp.getViewport().add(tree);
         //getContentPane().add(iconPanel);
-        setSize(new Dimension(500, 400));
+        setSize(new Dimension(700, 450));
         setVisible(true);
 
     }
@@ -93,26 +110,26 @@ implements TreeSelectionListener {
 
     private void makePublishers() {
         prez = new PublisherHead("Console", new ImageIcon("imgs/bethesda.jpg"));
-        prez.add(sap = new PublisherHead("Sony",new ImageIcon("imgs/bethesda.jpg")));
-        prez.add(web = new PublisherHead("Microsoft", new ImageIcon("imgs/bethesda.jpg")));
-        prez.add(pay = new PublisherHead("Nintendo", new ImageIcon("imgs/bethesda.jpg")));
+        prez.add(sony = new PublisherHead("Sony",new ImageIcon("imgs/bethesda.jpg")));
+        prez.add(ms = new PublisherHead("Microsoft", new ImageIcon("imgs/bethesda.jpg")));
+        prez.add(nint = new PublisherHead("Nintendo", new ImageIcon("imgs/bethesda.jpg")));
 
-       sap.add(new Publisher("Bethesda", new ImageIcon("imgs/bethesda.jpg")));
-       sap.add(analysis = new PublisherHead("SquareEnix", new ImageIcon("imgs/bethesda.jpg")));
+       sony.add(new Publisher("Bethesda", new ImageIcon("imgs/bethesda.jpg")));
+       sony.add(analysis = new PublisherHead("SquareEnix", new ImageIcon("imgs/bethesda.jpg")));
        analysis.add(new Publisher("Final Fantasy", new ImageIcon("imgs/bethesda.jpg")));
        analysis.add(new Publisher("Days Gone", new ImageIcon("imgs/bethesda.jpg")));
        analysis.add(new Publisher("Kingdom Hearts", new ImageIcon("imgs/bethesda.jpg")));
-       sap.add(new Publisher("Electronic Arts",new ImageIcon("imgs/bethesda.jpg") ));
+       sony.add(new Publisher("Electronic Arts",new ImageIcon("imgs/bethesda.jpg") ));
         
-       web.add(new Publisher("Design",new ImageIcon("imgs/bethesda.jpg")));
-       web.add(coding = new PublisherHead("Coding",new ImageIcon("imgs/bethesda.jpg")));
+       ms.add(new Publisher("Design",new ImageIcon("imgs/bethesda.jpg")));
+       ms.add(coding = new PublisherHead("Coding",new ImageIcon("imgs/bethesda.jpg")));
        coding.add(new Publisher("Prog specs", new ImageIcon("imgs/bethesda.jpg")));
        coding.add(new Publisher("Screens", new ImageIcon("imgs/bethesda.jpg")));
-       web.add(new Publisher("Analysis",new ImageIcon("imgs/bethesda.jpg")));
+       ms.add(new Publisher("Analysis",new ImageIcon("imgs/bethesda.jpg")));
        
-       pay.add(new Publisher("Design",new ImageIcon("imgs/bethesda.jpg")));
-       pay.add(new Publisher("Coding",new ImageIcon("imgs/bethesda.jpg")));
-       pay.add(new Publisher("Testing",new ImageIcon("imgs/bethesda.jpg")));
+       nint.add(new Publisher("Design",new ImageIcon("imgs/bethesda.jpg")));
+       nint.add(new Publisher("Coding",new ImageIcon("imgs/bethesda.jpg")));
+       nint.add(new Publisher("Testing",new ImageIcon("imgs/bethesda.jpg")));
     }
     
     public void valueChanged(TreeSelectionEvent evt) {
@@ -122,8 +139,13 @@ implements TreeSelectionListener {
 
         Publisher pro = prez.getChild(selectedTerm);
         if (pro != null)
-            cost.setIcon(pro.getIcon());
+            pic.setIcon(pro.getIcon());
     }
+    
+    public void actionPerformed(ActionEvent e)   {
+        CommandHolder obj = (CommandHolder)e.getSource();
+        obj.getCommand().execute();
+     }
     //--------------------------------------
     static public void main(String argv[]) {
         new Viewer();
